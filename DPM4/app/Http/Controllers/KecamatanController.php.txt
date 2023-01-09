@@ -1,0 +1,352 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\KecamatanModel;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+use DB;
+use Symfony\Contracts\Service\Attribute\Required;
+
+class KecamatanController extends Controller
+{
+
+    public function __construct()
+    {
+        $this->KecamatanModel = new KecamatanModel();
+        $this->middleware('auth');
+    }
+
+    public function index()
+    {
+        $kecamatan =KecamatanModel::paginate(10);
+        return view('admin.kecamatan.index', compact('kecamatan'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request) {
+        // dd($request->all());
+        $request->validate([
+            'kecamatan' => ['required'],
+            'warna' => ['required'],
+            'geojson' => ['required']
+
+        ]);
+        $kecamatan = KecamatanModel::create([
+            'kecamatan' => $request->kecamatan,
+            'warna' => $request->warna,
+            'geojson' => $request->geojson,
+
+        ]);
+        return back()->with('success', 'Berhasil Ditambahkan');
+
+    }
+
+    public function show($id)
+    {
+        $kecamatan = KecamatanModel::findorfail($id);
+        return view('admin.kecamatan.show', compact('kecamatan'));
+    }
+
+
+    public function edit($id)
+    {
+        //
+    }
+
+    public function update(Request $request, $id)
+    {
+         $request->validate([
+            'kecamatan' => ['required'],
+            'warna' => ['required'],
+            'geojson' => ['required']
+        ]);
+
+        $kecamatan = KecamatanModel::findorfail($id);
+        $kecamatan_data = [
+                'kecamatan' => $request->kecamatan,
+                'warna' => $request->warna,
+                'geojson' => $request->geojson,
+
+            ];
+
+        $kecamatan->update($kecamatan_data);
+        return redirect('admin/kecamatan')->with('success','Data Kecamatan anda berhasil di Update');
+    }
+
+    public function destroy($id)
+    {
+        $kecamatan = KecamatanModel::findorfail($id);
+        $kecamatan->delete();
+
+        return redirect()->back()->with('success','Data Berhasil Dihapus');
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$request->validate([
+     'umkm' => ['required'],
+     'id_pemilik' => ['required'],
+     'id_category' => ['required'],
+     'id_kecamatan' => ['required'],
+     'kbli' => ['required'],
+     'sektor' => ['required'],
+     'alamat' => ['required'],
+     'lokasi' => ['required'],
+     'deskripsi' => ['required'],
+     'tahun' => ['required'],
+     'tki' => ['required'],
+     'photo' => ['required'],
+     'foto' => ['required']
+ ]);
+
+ $randomStr = Str::random(5);
+ $randomStr1 = Str::random(6);
+ $ds = public_path("app/umkm");
+
+ $umkm = new UmkmModel;
+ $umkm->umkm = $request->umkm;
+ $umkm->id_pemilik = $request->id_pemilik;
+ $umkm->id_category = $request->id_category;
+ $umkm->id_kecamatan = $request->id_kecamatan;
+ $umkm->kbli = $request->kbli;
+ $umkm->sektor = $request->sektor;
+ $umkm->alamat = $request->alamat;
+ $umkm->lokasi = $request->lokasi;
+ $umkm->deskripsi = $request->deskripsi;
+ $umkm->tahun = $request->tahun;
+ $umkm->tki = $request->tki;
+ $umkm->foto = $request->foto;
+ $umkm->photo = $request->photo;
+
+
+ // HeandleFotoumkm
+ $foto = $request->file('foto');
+ $fo = $randomStr.'.'.$foto->extension();
+ $uf = $foto->move($ds, $fo);
+
+ $photo = $request->file('photo');
+ $ph = $randomStr1.'.'.$photo->extension();
+ $up = $photo->move($ds, $ph);
+
+ $umkm->foto = 'app/umkm/'.$fo;
+ $umkm->photo = 'app/umkm/'.$ph;
+
+ $umkm->save();
+
+ return redirect('admin/umkm')->with('success', 'Berhasil Ditambahkan');
+
+
+ public function update(Request $request, $id)
+    {
+        // dd($request->all());
+        $kar = UmkmModel::Find($id);
+        if ($request->has('foto')) {
+
+            $foto = $request->foto;
+            $new_foto = time() . $foto->getClientOriginalName();
+            $foto->move('app/umkm/', $new_foto);
+
+            $photo = $request->photo;
+            $new_photo = time() . $photo->getClientOriginalName();
+            $photo->move('app/umkm/', $new_photo);
+
+            $kar_data = [
+                'umkm' => $request->umkm,
+                'id_pemilik' => $request->id_pemilik,
+                'id_category' => $request->id_category,
+                'id_kecamatan' => $request->id_kecamatan,
+                'kbli' => $request->kbli,
+                'sektor' => $request->sektor,
+                'alamat' => $request->alamat,
+                'lokasi' => $request->lokasi,
+                'deskripsi' => $request->deskripsi,
+                'tahun' => $request->tahun,
+                'tki' => $request->tki,
+                'foto' => 'app/umkm/' . $new_foto,
+                'photo' => 'app/umkm/' . $new_photo,
+            ];
+        } else {
+            $kar_data = [
+                'umkm' => $request->umkm,
+                'id_pemilik' => $request->id_pemilik,
+                'id_category' => $request->id_category,
+                'id_kecamatan' => $request->id_kecamatan,
+                'kbli' => $request->kbli,
+                'sektor' => $request->sektor,
+                'alamat' => $request->alamat,
+                'lokasi' => $request->lokasi,
+                'deskripsi' => $request->deskripsi,
+                'tahun' => $request->tahun,
+                'tki' => $request->tki,
+            ];
+        }
+        $kar->update($kar_data);
+        return redirect('admin/umkm')->with('success', 'Berhasil Ditambahkan');
+     }
+
+
+
+
+
+
+
+
+
+
+     public function update(Request $request, $id_umkm)
+    {
+
+
+        $randomStr = Str::random(5);
+        $randomStr1 = Str::random(6);
+        $ds = public_path("app/umkm");
+
+        $extensi = $request->file('foto')->getClientOriginalExtension();
+        $namafile = $request->file('foto')->getClientOriginalName();
+
+       if ($request->foto == null && $request->photo == null) {
+            $umkm = new UmkmModel;
+            $umkm->umkm = $request->umkm;
+            $umkm->id_pemilik = $request->id_pemilik;
+            $umkm->id_category = $request->id_category;
+            $umkm->id_kecamatan = $request->id_kecamatan;
+            $umkm->kbli = $request->kbli;
+            $umkm->sektor = $request->sektor;
+            $umkm->alamat = $request->alamat;
+            $umkm->lokasi = $request->lokasi;
+            $umkm->deskripsi = $request->deskripsi;
+            $umkm->tahun = $request->tahun;
+            $umkm->tki = $request->tki;
+            $umkm->save();
+        }
+
+        // HeandleFotoumkm
+        $foto = $request->file('foto');
+        $fo = $randomStr.'.'.$foto->extension();
+        $uf = $foto->move($ds, $fo);
+
+        $photo = $request->file('photo');
+        $ph = $randomStr1.'.'.$photo->extension();
+        $up = $photo->move($ds, $ph);
+
+        $umkm->foto = 'app/umkm/'.$fo;
+        $umkm->photo = 'app/umkm/'.$ph;
+
+
+        if ($request->foto != null) {
+
+            if ($request->photo != null) {
+                $umkm = new UmkmModel;
+                $umkm->umkm = $request->umkm;
+                $umkm->id_pemilik = $request->id_pemilik;
+                $umkm->id_category = $request->id_category;
+                $umkm->id_kecamatan = $request->id_kecamatan;
+                $umkm->kbli = $request->kbli;
+                $umkm->sektor = $request->sektor;
+                $umkm->alamat = $request->alamat;
+                $umkm->lokasi = $request->lokasi;
+                $umkm->deskripsi = $request->deskripsi;
+                $umkm->tahun = $request->tahun;
+                $umkm->tki = $request->tki;
+                $umkm->foto = $request->foto;
+                $umkm->photo = $request->photo;
+                $umkm->save();
+            }
+            $umkm = new UmkmModel;
+            $umkm->umkm = $request->umkm;
+            $umkm->id_pemilik = $request->id_pemilik;
+            $umkm->id_category = $request->id_category;
+            $umkm->id_kecamatan = $request->id_kecamatan;
+            $umkm->kbli = $request->kbli;
+            $umkm->sektor = $request->sektor;
+            $umkm->alamat = $request->alamat;
+            $umkm->lokasi = $request->lokasi;
+            $umkm->deskripsi = $request->deskripsi;
+            $umkm->tahun = $request->tahun;
+            $umkm->tki = $request->tki;
+            $umkm->foto = $request->foto;
+            $umkm->save();
+
+        }
+
+
+        return redirect('admin/umkm')->with('success', 'Berhasil Ditambahkan');
+
+     }
+
+
+
+
+
+
+
+
+     public function update(Request $request, $id_umkm)
+    {
+        $umkm = new UmkmModel;
+        $umkm->umkm =  request('umkm');
+        $umkm->id_pemilik = request('id_pemilik');
+        $umkm->id_category = request('id_category');
+        $umkm->id_kecamatan = request('id_kecamatan');
+        $umkm->kbli = request('kbli');
+        $umkm->sektor = request('sektor');
+        $umkm->alamat = request('alamat');
+        $umkm->lokasi = request('lokasi');
+        $umkm->deskripsi = request('deskripsi');
+        $umkm->tahun = request('tahun');
+        $umkm->tki = request('tki');
+        if (request()->hasFile('foto')) {
+            //file yang boleh kosong
+            $foto = time() . '_' . $request->file->getClientOriginalName();
+            $data2 = $request->file('foto')->storeAs('public/uploads', $foto);
+            $umkm->foto = $data2;
+        }
+        if (request()->hasFile('photo')) {
+            //file yang dak boleh kosong
+            $photo = time() . '.' . $request->file->extension();
+            $data = $request->file('photo')->storeAs('public/uploads', $photo);
+            $umkm->photo = $data;
+        }
+        $this->UmkmModel->UpdateData($id_umkm, $umkm);
+
+        return redirect('admin/umkm')->with('success', 'data berhasil diedit');
+    }
